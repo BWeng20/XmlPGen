@@ -1,0 +1,34 @@
+<#--
+  Copyright (c) 2016 Bernd Wengenroth
+  Licensed under the MIT License.
+  See LICENSE file for details.
+-->
+project(MyXml)
+cmake_minimum_required(VERSION 2.6)
+
+find_package(LibXml2)
+
+include_directories(
+    ${r"${CMAKE_SOURCE_DIR}"}
+    ${r"${LIBXML2_INCLUDE_DIR}"}
+)
+
+unset(MyXMLLibSource CACHE)
+unset(MyXMLTestSource CACHE)
+
+add_subdirectory(XmlPGen)
+<#list xsd.namespaces as namespace>
+add_subdirectory(${namespace.name})
+</#list>
+
+add_library (MyXmlParser SHARED ${r"${MyXMLLibSource}"} )
+target_link_libraries( MyXmlParser ${r"${LIBXML2_LIBRARIES}"})
+set_property(TARGET MyXmlParser PROPERTY WINDOWS_EXPORT_ALL_SYMBOLS true)
+
+set_property(SOURCE MyXml PROPERTY CXX_STANDARD_REQUIRED ON)
+set_property(SOURCE MyXml PROPERTY CXX_STANDARD 11)
+
+<#list xsd.namespaces as namespace>
+add_executable( ${namespace.name}TestReader ${r"${"+namespace.name+"XMLTestSource}"} )
+target_link_libraries( ${namespace.name}TestReader MyXmlParser )
+</#list>

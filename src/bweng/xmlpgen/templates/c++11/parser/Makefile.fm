@@ -1,0 +1,11 @@
+<#--
+  Copyright (c) 2016 Bernd Wengenroth
+  Licensed under the MIT License.
+  See LICENSE file for details.
+-->
+SET( MyXMLLibSource ${r"${MyXMLLibSource}"}
+<#list namespace.files as afile><#if afile.parentFile.canonicalPath == file.parentFile.canonicalPath && (afile.name?endsWith(".cpp") || afile.name?endsWith(".c"))>
+ ${r"${CMAKE_CURRENT_SOURCE_DIR}"}/${afile.name}
+</#if></#list>
+ CACHE INTERNAL ""
+)

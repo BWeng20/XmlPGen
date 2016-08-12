@@ -1,0 +1,20 @@
+<#--
+  Copyright (c) 2016 Bernd Wengenroth
+  Licensed under the MIT License.
+  See LICENSE file for details.
+-->
+<#include "HelperFunctions.fm">
+<#assign CurrentTime = .now>
+# Generated Microsoft Developer Studio Project File 
+# Microsoft Developer Studio Generated Build File, Format Version 5.00
+# ${CurrentTime}
+
+CPP=cl.exe
+MTL=midl.exe
+RSC=rc.exe
+
+<#list srcfile as files>
+SOURCE=${srcfile}
+</#list>
+  
+

@@ -1,0 +1,240 @@
+<#--
+  Copyright (c) 2016 Bernd Wengenroth
+  Licensed under the MIT License.
+  See LICENSE file for details.
+-->
+<#function resolveTypeNameFromTemplate t source >
+  <#assign ns=(t.GNamespace)!"">  
+  <#if (source?length)==0 >
+    <#assign tname= t.GName!"undefined" >
+  <#else>
+    <#assign tname=t[source].GName>
+  </#if> 
+  <#if ((ns?length)==0) || (ns==NAMESPACE)>
+    <#if t.isEnumeration>
+      <#return tname+"::Type" !"undefined">
+    <#else>
+      <#return tname>
+    </#if>
+  <#else>
+    <#if t.isEnumeration>
+      <#return "::"+ns+"::"+ tname+"::Type">   
+    <#else>
+      <#return "::"+ns+"::"+ tname>
+    </#if>
+  </#if>
+</#function>
+
+<#function resolveTypeName t >
+  <#return resolveTypeNameFromTemplate( t, "")>
+</#function>
+
+<#function getElementName member>
+  <#return options.element.pattern.name?replace("%name%",(member.GName?cap_first))>
+</#function>
+<#function getElementGetter member>
+  <#return options.element.pattern.get?replace("%name%",getElementName(member))>
+</#function>
+<#function getElementSetter member>
+  <#return options.element.pattern.set?replace("%name%",getElementName(member))>
+</#function>
+<#function getElementIsSet member>
+  <#return options.element.pattern.isset?replace("%name%",getElementName(member))>
+</#function>
+<#function getElementClear member>
+  <#return options.element.pattern.clear?replace("%name%",getElementName(member))>
+</#function>
+
+<#function getAttributeName attribute>
+  <#return options.attribute.pattern.name?replace("%name%",(attribute.GName?cap_first))>
+</#function>
+<#function getAttributeGetter attribute>
+  <#return options.element.pattern.get?replace("%name%",getAttributeName(attribute))>
+</#function>
+<#function getAttributeSetter attribute>
+  <#return options.element.pattern.set?replace("%name%",getAttributeName(attribute))>
+</#function>
+<#function getAttributeIsSet attribute>
+  <#return options.element.pattern.isset?replace("%name%",getAttributeName(attribute))>
+</#function>
+<#function getAttributeClear attribute>
+  <#return options.element.pattern.clear?replace("%name%",getAttributeName(attribute))>
+</#function>
+
+<#function getElementVarName member>
+  <#return "m"+(getElementName(member))>
+</#function>
+
+<#function getAttributeVarName attribute>
+  <#return "m"+(getAttributeName(attribute))>
+</#function>
+
+<#-- resolves access to a member -->
+<#function resolveElementGet member parentVar>
+  <#assign MemVar=getElementVarName(member)>  
+  <#if member.type.usage == "ByPointer">
+    <#return resolvePtrDeRef(parentVar+MemVar)>
+  <#else>
+    <#return parentVar+MemVar>
+  </#if>
+</#function>
+
+<#-- resolves access to a attribute -->
+<#function resolveAttributeGet attribute parentVar>
+  <#assign MemVar=getAttributeVarName(attribute)>  
+  <#if attribute.type.usage == "ByPointer">
+    <#return resolvePtrDeRef(parentVar+MemVar)>
+  <#else>
+    <#return parentVar+MemVar>
+  </#if>
+</#function>
+
+<#function resolveListType t>
+  <#return options.type.list.pattern.type?replace("%type%",resolveTypeName(t))>
+</#function>
+
+<#function resolveListPtrType t>
+  <#return options.type.list.pattern.type?replace("%type%",resolvePtrType(t))>
+</#function>
+
+<#function resolvePtrDeRef varname>
+  <#return options.type.pointer.pattern.deref?replace("%variable%",varname)>
+</#function>
+
+<#function getPtrType name>
+  <#return options.type.pointer.pattern.type?replace("%type%",name)>
+</#function>
+
+<#function resolvePtrType t>
+  <#return getPtrType(resolveTypeName(t))>
+</#function>
+
+<#function resolvePtrTypeFromTemplate t source>
+  <#return getPtrType(resolveTypeNameFromTemplate(t,source))>
+</#function>
+
+<#function resolvePtrRefType t>
+  <#return options.type.pointer.pattern.reftype?replace("%type%",resolveTypeName(t))>
+</#function>
+
+<#function resolveConstPtrRefType t>
+  <#return options.type.pointer.pattern.constreftype?replace("%type%",resolveTypeName(t))>
+</#function>
+
+<#function resolvePtrCheckNull varname>
+  <#return options.type.pointer.pattern.checknull?replace("%variable%",varname)>
+</#function>
+
+<#function resolvePtrGetPtr varname>
+  <#return options.type.pointer.pattern.getptr?replace("%variable%",varname)>
+</#function>
+
+<#function getPtrNew name>
+  <#return options.type.pointer.pattern.new?replace("%type%",name)>
+</#function>
+
+<#function resolvePtrNew t>
+  <#return getPtrNew(resolveTypeName(t))>
+</#function>
+
+<#function resolvePtrNewFromTemplate t source>
+  <#return options.type.pointer.pattern.new?replace("%type%",resolveTypeNameFromTemplate(t,source))>
+</#function>
+
+<#function resolveIncludeDefine>
+  <#assign incdef=(file.name?replace('"','')?replace('.','_')?replace('/','_')?upper_case)>
+  <#if ((NAMESPACE?length)>0) > 
+   <#return (NAMESPACE?upper_case)+"_"+incdef+"_INCLUDED">
+ <#else>
+   <#return incdef+"_INCLUDED">
+ </#if>
+</#function>
+
+<#function resolveListAdd member item>
+  <#return options.type.list.pattern.add?replace("%member%",member)?replace("%element%",item)>
+</#function>
+
+<#function resolveListGet member index>
+  <#return options.type.list.pattern.get?replace("%member%",member)?replace("%index%",index)>
+</#function>
+
+<#function resolveListGetLast member >
+  <#assign pattern=options.type.list.pattern.getLast!"">
+  <#if (pattern?length)!=0>
+    <#return (pattern?replace("%member%",member))>
+  <#else>
+    <#return resolveListGet( member, resolveListSize(member)+"-1" )>
+  </#if>
+</#function>
+
+<#function resolveListRemove member index>
+  <#return options.type.list.pattern.remove?replace("%member%",member)?replace("%index%",index)>
+</#function>
+
+<#function resolveListSize member>
+  <#return options.type.list.pattern.size?replace("%member%",member)>
+</#function>
+
+<#function MakeLocalPath includePath>
+  <#return TrimPath( file, includePath)>
+</#function>
+
+
+<#function isListMember member>
+  <#if (member.occurence.max > 1) || (member.occurence.max == -1) >
+  	<#return true>
+  <#else>
+  	<#return false>  	
+  </#if>
+</#function>
+
+<#function resolveCPtrValue member name >
+  <#if member.type.isEnumeration>
+  	<#return resolveTypeName(member.type)+"::toString("+ name+ ")">
+  <#else>
+   <#if member.type.pattern??>
+  	  <#return member.type.pattern.tostring?replace("%var%",name)>
+   <#else>
+  	  <#return "static_cast<char const*>("+name+")">
+   </#if>
+  </#if>
+</#function>
+
+<#function c_comment_string txt >
+  	<#return txt?replace("*/","* /")>
+</#function>
+
+<#function c_string txt >
+  	<#return '"'+(txt?replace('"','\\"'))+'"' >
+</#function>
+
+<#function resolveElementName member name >
+  <#if member.type.name == "any" && member.type.namespace="XMLSchema">
+    <#if member.type.usage == "ByPointer">
+     	<#return name+"->elementName.c_str()">
+    <#else>
+     	<#return name+".elementName.c_str()">
+    </#if>
+  <#else>
+  	<#return '"'+member.name+'"'>
+  </#if>
+</#function>
+
+<#function timestamp >
+  <#if options.generate.timestamp >
+  	<#return (.now?string.iso)>
+  <#else>
+  	<#return "">
+  </#if>
+</#function>
+
+<#function max v1 v2 >
+  <#if v1 < v2>
+  	<#return v2>
+  <#else>
+  	<#return v1>
+  </#if>
+</#function>
+
+<#-- Set default namespace -->
+<#assign NAMESPACE = ((type.GNamespace)!((namespace.name)!""))>
