@@ -1,0 +1,40 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<firstlevel xmlns="http://www.bernd.com/TEST/1/1" xmlns:gpx="http://www.topografix.com/GPX/1/1">
+   <childOne creator="Bernd">
+      <name>Mattis</name>
+      <serialNumber>1</serialNumber>
+      <alias>Mat</alias>
+      <point lat="76.000" lon="123.4"></point>
+   </childOne>
+   <childTwo creator="Bernd">
+      <name>Paula</name>
+      <serialNumber>2</serialNumber>
+      <alias>Pa</alias>
+      <point lat="76.000" lon="123.4">
+         <gpx:name>Some Point</gpx:name>
+      </point>
+   </childTwo>
+   <person>
+      <employee>
+         <name>Betty</name>
+      </employee>
+   </person>
+   <numbers>
+      <byte>1</byte>
+      <unsignedByte>2</unsignedByte>
+      <short>3</short>
+      <unsignedShort>4</unsignedShort>
+      <int>5</int>
+      <unsignedInt>6</unsignedInt>
+      <long>7</long>
+      <unsignedLong>8</unsignedLong>
+      <integer>9</integer>
+      <decimal>12.1</decimal>
+      <negativeInteger>-1</negativeInteger>
+      <nonNegativeInteger>10</nonNegativeInteger>
+      <nonPositiveInteger>-123</nonPositiveInteger>
+      <positiveInteger>123</positiveInteger>
+      <double>0.123</double>
+      <float>0.1234</float>
+   </numbers>
+</firstlevel>

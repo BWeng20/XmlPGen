@@ -47,7 +47,7 @@ public final class Configuration
       URL url;
       try
       {
-         url = XmlPGen.class.getResource(cfgFile);
+         url = XmlPGen.class.getResource("/"+cfgFile);
 
          if ( url != null)
          {

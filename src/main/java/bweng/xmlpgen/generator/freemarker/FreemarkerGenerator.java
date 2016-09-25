@@ -36,7 +36,7 @@ import java.util.Locale;
 
 public class FreemarkerGenerator extends Generator
 {
-   public static final Version freemarkerVersion = new Version( 2,3,24);
+   public static final Version freemarkerVersion = new Version( 2,3,23);
 	
 	public static final String PROPERTY_TEMPLATE_DIR= "freemarker.TemplateBaseDirectory";	
 	

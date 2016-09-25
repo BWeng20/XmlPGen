@@ -1,0 +1,165 @@
+<?xml version="1.0" encoding="utf-8"?>
+<xsd:schema
+    xmlns:xsd="http://www.w3.org/2001/XMLSchema"
+    xmlns:gpx="http://www.topografix.com/GPX/1/1"  
+    xmlns="http://www.bernd.com/TEST/1/1"
+    targetNamespace="http://www.bernd.com/TEST/1/1"
+    elementFormDefault="qualified">
+
+    <xsd:import namespace="http://www.topografix.com/GPX/1/1" schemaLocation="gpx.xsd"/> 
+
+    <xsd:annotation>
+        <xsd:documentation>
+            Some Schema Documentation
+        </xsd:documentation>
+    </xsd:annotation>
+
+    <xsd:element name="firstlevel" type="first-level-Type">
+        <xsd:annotation>
+            <xsd:documentation>
+                This is the root element in the XML file.
+            </xsd:documentation>
+        </xsd:annotation>
+    </xsd:element>
+
+    <xsd:complexType name="first-level-Type">
+        <xsd:annotation>
+            <xsd:documentation>
+                First Level type. 
+                Containing a lot of elements
+            </xsd:documentation>
+        </xsd:annotation>
+        <xsd:sequence>	
+            <xsd:element name="childOne"	type="childType"	minOccurs="0" maxOccurs="unbounded">
+                <xsd:annotation>
+                    <xsd:documentation>
+                        I am the first one
+                    </xsd:documentation>
+                </xsd:annotation>
+            </xsd:element>
+            <xsd:element name="childTwo"	type="childType"	minOccurs="0" maxOccurs="unbounded">
+                <xsd:annotation>
+                    <xsd:documentation>
+                        I am the second one
+                    </xsd:documentation>
+                </xsd:annotation>
+            </xsd:element>
+            <xsd:element name="person" type="personType">
+                <xsd:annotation>
+                    <xsd:documentation>
+                        A person with to choice elements
+                    </xsd:documentation>                
+                </xsd:annotation>
+            </xsd:element>
+            <xsd:element name="numbers" type="numbersType">
+                <xsd:annotation>
+                    <xsd:documentation>
+                        A numer test
+                    </xsd:documentation>                
+                </xsd:annotation>
+            </xsd:element>
+        </xsd:sequence>
+    </xsd:complexType>
+
+    <xsd:complexType name = "personType">
+        <xsd:choice>
+            <xsd:element name="employee" type="employee"/>
+            <xsd:element name="member" type="member"/>
+        </xsd:choice>
+    </xsd:complexType>
+
+    <xsd:complexType name = "numbersType">
+        <xsd:sequence>
+            <xsd:element name="byte" type="xsd:byte">
+                <xsd:annotation>
+                    <xsd:documentation>
+                        A signed 8 bit integer type.
+                    </xsd:documentation>                
+                </xsd:annotation>
+            </xsd:element>
+            <xsd:element name="unsignedByte" type="xsd:unsignedByte"/>
+            <xsd:element name="short" type="xsd:short"/>
+            <xsd:element name="unsignedShort" type="xsd:unsignedShort"/>
+            <xsd:element name="int" type="xsd:int"/>
+            <xsd:element name="unsignedInt" type="xsd:unsignedInt"/>
+            <xsd:element name="long" type="xsd:long"/>
+            <xsd:element name="unsignedLong" type="xsd:unsignedLong"/>
+            <xsd:element name="integer" type="xsd:integer"/>
+            <xsd:element name="decimal" type="xsd:decimal">
+                <xsd:annotation>
+                    <xsd:documentation>
+                        A decimal number with up to 18 decimal digits.
+                    </xsd:documentation>                
+                </xsd:annotation>
+            </xsd:element>
+            <xsd:element name="negativeInteger" type="xsd:negativeInteger"/>
+            <xsd:element name="nonNegativeInteger" type="xsd:nonNegativeInteger"/>
+            <xsd:element name="nonPositiveInteger" type="xsd:nonPositiveInteger"/>
+            <xsd:element name="positiveInteger" type="xsd:positiveInteger"/>
+            <xsd:element name="double" type="xsd:double">
+                <xsd:annotation>
+                    <xsd:documentation>
+                        A 64-bit floating point type.
+                    </xsd:documentation>                
+                </xsd:annotation>
+            </xsd:element>
+            <xsd:element name="float" type="xsd:float">
+                <xsd:annotation>
+                    <xsd:documentation>
+                        A 32-bit floating point type.
+                    </xsd:documentation>                
+                </xsd:annotation>
+            </xsd:element>
+        </xsd:sequence>    
+    </xsd:complexType>
+
+    <xsd:complexType name ="employee">
+        <xsd:sequence>
+            <xsd:element name="name" type="xsd:string"/>
+        </xsd:sequence>
+    </xsd:complexType>
+    <xsd:complexType name ="member">
+        <xsd:sequence>
+            <xsd:element name="name" type="xsd:string"/>
+        </xsd:sequence>
+    </xsd:complexType>
+
+
+    <xsd:complexType name="childType" mixed="true">
+        <xsd:annotation>
+            <xsd:documentation>A complex type.</xsd:documentation>
+        </xsd:annotation>
+        <xsd:sequence>
+            <xsd:annotation>
+                <xsd:documentation>A Sequence with AttributeGroup.</xsd:documentation>
+            </xsd:annotation>
+            <xsd:group ref="MyAttributeGroup" />
+        </xsd:sequence>
+        <xsd:attribute name="creator" type="xsd:string" use="required"/>
+    </xsd:complexType>
+  
+    <xsd:simpleType name="MySimpleType">
+        <xsd:annotation>
+            <xsd:documentation>
+                A simple type.
+            </xsd:documentation>
+        </xsd:annotation>
+        <xsd:restriction base="xsd:integer">
+            <xsd:minInclusive value="0"/>
+            <xsd:maxInclusive value="1023"/>
+        </xsd:restriction>
+    </xsd:simpleType>
+  
+    <xsd:group name="MyAttributeGroup">
+        <xsd:sequence>
+            <xsd:element name="name" type="xsd:string" minOccurs="1" >
+                <xsd:annotation>
+                    <xsd:documentation>Attribute from Group</xsd:documentation>
+                </xsd:annotation>
+            </xsd:element>
+            <xsd:element name="serialNumber" type="xsd:long" />
+            <xsd:element name="alias" type="xsd:string"  maxOccurs="3" />
+            <xsd:element name="point" type="gpx:wptType" />
+        </xsd:sequence>
+    </xsd:group>
+</xsd:schema>
