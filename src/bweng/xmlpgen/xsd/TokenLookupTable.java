@@ -24,8 +24,15 @@ public class TokenLookupTable
       return token;
    }
    
+   public TokenLookupEntry getTokenEntry(int token)
+   {
+      return token2Entry.get(token);
+   }
+   
+   
    ArrayList<TokenLookupEntry> chars;
    HashMap<String,Integer> token;
+   HashMap<Integer,TokenLookupEntry> token2Entry;
 
    // Statistics for values in this map, for possible choose of datatypes.
    public int next_max;
@@ -43,6 +50,11 @@ public class TokenLookupTable
       id_min  = Integer.MAX_VALUE;
    }
 
+   /**
+    * Scans char map and sets resulting name for each leaf.
+    * @param sb
+    * @param idx 
+    */
    private void scanToken( StringBuilder sb, int idx )
    {
       int currNameIdx = sb.length();
@@ -68,12 +80,19 @@ public class TokenLookupTable
     */
    public void setGeneratorNames()
    {
+      token2Entry = new HashMap<Integer,TokenLookupEntry>();
+      
       StringBuilder sb = new StringBuilder();
       scanToken( sb, 0 );
       for (int idx =0 ; idx < chars.size() ; ++idx)
       {
          if ( chars.get(idx).name != null )
-            chars.get(idx).name = Generator.asSymbol( chars.get(idx).name );
+         {
+            TokenLookupEntry token = chars.get(idx);
+            token.name = Generator.asSymbol( chars.get(idx).name );
+            
+            token2Entry.put( token.getId(), token );
+         }
       }
    }
 }

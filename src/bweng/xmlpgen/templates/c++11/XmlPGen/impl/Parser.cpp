@@ -3,6 +3,8 @@
  * See LICENSE file for details.
  */
 #include "../Parser.h"
+#include "../Schema.h"
+#include <fstream>
 
 namespace XmlPGen
 {
@@ -14,14 +16,23 @@ namespace XmlPGen
      element_stack.reserve(20);
    }
 
+   void Parser::addSchema( ::std::shared_ptr<Schema> const & schema )
+   {
+     schemata.push_back( schema );
+   }
+
    bool Parser::parse( ::std::shared_ptr< ::std::istream> i, char const * optFileName )
    { 
-     return false;
+	  input = i;
+     filename = optFileName;
+     bool const returnVal = visitDocument();
+     input.reset();
+     return returnVal;
    }
 
    bool Parser::parse( char const * fileName )
    {
-      return parse( ::std::make_shared< ::std::fstream >(fileName, ::std::ios_base::in ), fileName );
+     return parse( ::std::dynamic_pointer_cast<::std::istream>(::std::make_shared< ::std::fstream >(fileName, ::std::ios_base::in )), fileName );
    }
 
    Parser::~Parser()
@@ -75,8 +86,13 @@ namespace XmlPGen
            }
       }
       int const name_token = getToken( name );
-      if ( current_element.element ) current_element.element = current_element.element->addElement(current_element.schema.get(),name_token);
-      printf("> %s::%s\n",ns,name);
+      if ( current_element.element ) 
+        current_element.element = current_element.element->addElement(current_element.schema ? current_element.schema->uri_token:-1,name_token);
+      else if ( current_element.schema && current_element.schema->root_token == name_token )
+      {
+        current_element.element = current_element.schema->createRootHandler();
+      }
+printf("> %s::%s\n",ns,name);
    }
 
    void Parser::setAttribute(char const * name, char const * value)

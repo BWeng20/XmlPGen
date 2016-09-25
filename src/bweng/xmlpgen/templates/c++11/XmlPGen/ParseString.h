@@ -18,7 +18,7 @@ namespace XmlPGen
    }     
 
    template< >
-   inline void ParseString( char const * value, ::std::string const & str )
+   inline void ParseString( char const * value, ::std::string & str )
    { 
       str = value;
    }

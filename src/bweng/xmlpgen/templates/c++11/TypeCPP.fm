@@ -23,6 +23,18 @@
 <#if type.isEnumeration>
  #include <map>
 </#if>
+<#if options.generate.setflags >
+  <#-- Detect if and how many "set" flags are needed -->
+  <#assign SetMemberCount = type.attributes?size >
+  <#list type.members as member>
+    <#if ! isListMember(member) >
+      <#assign SetMemberCount = SetMemberCount+1 >
+    </#if>
+  </#list>
+  <#assign setMemberIndex = 0 >
+<#else>
+  <#assign SetMemberCount = 0 >
+</#if> 
 
  namespace ${type.namespace.name}
  {
@@ -57,20 +69,16 @@
 	${Clazz}::${Clazz}()
 <#assign ds=":">
 <#list type.attributes as attribute>
-<#assign TypeName = resolveTypeName(attribute.type)
-         MemName  = getAttributeName(attribute)
-         MemVar   = getAttributeVarName(attribute)>
+<#assign MemVar  = getAttributeVarName(attribute)>
  <#if attribute.type.usage == "ByPointer">
-	${ds}<#assign ds=","> ${MemVar}(0)
+	${ds}<#assign ds=","> ${MemVar}(nullptr)
  <#else>
 	${ds}<#assign ds=","> ${MemVar}()	
  </#if>
 </#list> 	
 <#list type.members as member>
 <#if !isListMember(member)>
-<#assign TypeName = resolveTypeName(member.type)
-         MemName  = getElementName(member)
-         MemVar   = getElementVarName(member)>
+<#assign MemVar = getElementVarName(member)>
  <#if member.type.usage == "ByPointer">
 	${ds}<#assign ds=","> ${MemVar}(0)	
  <#else>
@@ -86,17 +94,16 @@
 	${Clazz}::${Clazz}( const ${Clazz} & r)
 <#assign ds=":">
 <#list type.attributes as attribute>
-<#assign TypeName = resolveTypeName(attribute.type)
-         MemName  = getAttributeName(attribute)
-         MemVar   = getAttributeVarName(attribute)>
+<#assign MemVar = getAttributeVarName(attribute)>
 	${ds}<#assign ds=","> ${MemVar}( r.${MemVar} )
 </#list> 	
 <#list type.members as member>
-<#assign TypeName = resolveTypeName(member.type)
-         MemName  = getElementName(member)
-         MemVar   = getElementVarName(member)>
+<#assign MemVar = getElementVarName(member)>
 	${ds}<#assign ds=","> ${MemVar}( r.${MemVar} )
 </#list>
+<#if (SetMemberCount>0) >
+   , setFlags( r.setFlags )
+</#if> 
 	{
 	}
 </#if>
@@ -106,21 +113,16 @@
 	{
 		if ( this != &r )
 		{
-<#list type.attributes as attribute>
-<#assign TypeName = resolveTypeName(attribute.type)
-         MemName  = getAttributeName(attribute)
-         MemVar   = getAttributeVarName(attribute)>
-			${MemVar} = r.${MemVar};
-</#list> 	
-<#list type.members as member>
-<#assign TypeName = resolveTypeName(member.type)
-         MemName  = getElementName(member)
-         MemVar   = getElementVarName(member)>
-<#if !isListMember(member)>
-			${MemVar} = r.${MemVar};
-<#else>
-			${MemVar} = r.${MemVar};
+<#if (SetMemberCount>0) >
+         setFlags = r.setFlags;
 </#if>
+<#list type.attributes as attribute>
+  <#assign MemVar = getAttributeVarName(attribute)>
+			${MemVar} = r.${MemVar};
+</#list>
+<#list type.members as member>
+<#assign MemVar = getElementVarName(member)>
+			${MemVar} = r.${MemVar};
 </#list>
 		}
 		return *this;
@@ -131,30 +133,42 @@
 	bool ${Clazz}::operator == (const ${Clazz} & r) const
 	{
 		return
-<#assign ds="  ">
+<#assign ds        ="  "
+         CndPrefix = "" 
+         CndPostfix= "">
+<#if (SetMemberCount>0) >
+       ${ds}<#assign ds="&&"> setFlags == r.setFlags
+</#if>
 <#list type.attributes as attribute>
-<#assign TypeName = resolveTypeName(attribute.type)
-         MemName  = getAttributeName(attribute)
-         MemVar   = getAttributeVarName(attribute)>
+<#assign MemVar = getAttributeVarName(attribute)>
+ <#if (SetMemberCount>0) >
+  <#assign CndPrefix = "((!setFlags.test("+ setMemberIndex +")) || "
+           CndPostfix= ")"
+           setMemberIndex = setMemberIndex+1 >
+ </#if>
  <#if attribute.type.usage == "ByPointer">
-		 ${ds}<#assign ds="&&"> ((r.${MemVar} && ${MemVar})?(*r.${MemVar}==*${MemVar}):(r.${MemVar}==${MemVar}) )
+       ${ds}<#assign ds="&&"> ${CndPrefix}((r.${MemVar} && ${MemVar})?(*r.${MemVar}==*${MemVar}):(r.${MemVar}==${MemVar}))${CndPostfix}
  <#else>
-		 ${ds}<#assign ds="&&"> (r.${MemVar}==${MemVar})
+       ${ds}<#assign ds="&&"> ${CndPrefix}(r.${MemVar}==${MemVar})${CndPostfix}
  </#if>
 </#list> 	
 <#list type.members as member>
-<#assign TypeName = resolveTypeName(member.type)
-         MemName  = getElementName(member)
-         MemVar   = getElementVarName(member)>
-<#if !isListMember(member)>
- <#if member.type.usage == "ByPointer">
-		 ${ds}<#assign ds="&&"> ((r.${MemVar} && ${MemVar})?(*r.${MemVar}==*${MemVar}):(r.${MemVar}==${MemVar}) )
- <#else>
-		 ${ds}<#assign ds="&&"> (r.${MemVar}==${MemVar})
+<#assign MemVar = getElementVarName(member)>
+ <#if (SetMemberCount>0) >
+  <#assign CndPrefix = "((!setFlags.test("+ setMemberIndex +")) || "
+           CndPostfix= ")"
+           setMemberIndex = setMemberIndex+1 >
  </#if>
-<#else>
-		 ${ds}<#assign ds="&&"> (r.${MemVar}==${MemVar})
-</#if></#list>
+ <#if !isListMember(member)>
+  <#if member.type.usage == "ByPointer">
+		 ${ds}<#assign ds="&&"> ${CndPrefix}((r.${MemVar} && ${MemVar})?(*r.${MemVar}==*${MemVar}):(r.${MemVar}==${MemVar}))${CndPostfix}
+  <#else>
+		 ${ds}<#assign ds="&&"> ${CndPrefix}(r.${MemVar}==${MemVar})${CndPostfix}
+  </#if>
+ <#else>
+		 ${ds}<#assign ds="&&"> ${CndPrefix}(r.${MemVar}==${MemVar})${CndPostfix}
+ </#if>
+ </#list>
 		 ;
 	}
 </#if>

@@ -18,13 +18,13 @@ namespace XmlPGen
       virtual TypeHandler * addAttribute(int token) = 0;
       virtual TypeHandler * addElement(int namespace_token, int element_token) = 0;
 
-      virtual ~TypeHandler()
+      virtual ~TypeHandler();
    };
 
    class FunctionContentHandler : public TypeHandler
    {
    public:
-      FunctionContentHandler( ::std::function< char const *> * f );
+      FunctionContentHandler( ::std::function< void(char const *) > * f );
       ~FunctionContentHandler();
 
       virtual void addContent(char const *) override;
@@ -32,9 +32,9 @@ namespace XmlPGen
       // does nothing
       virtual TypeHandler * addAttribute(int token) override;
       // does nothing
-      virtual TypeHandler * addElement(int token) override;
+      virtual TypeHandler * addElement(int namespace_token, int element_token) override;
    private:
-      ::std::function< char const *> * func_;
+      ::std::function< void(char const *) > * func_;
    };
 
 }

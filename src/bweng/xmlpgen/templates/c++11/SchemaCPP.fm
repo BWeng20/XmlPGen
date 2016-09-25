@@ -21,7 +21,8 @@
  */
 #include ${MakeLocalPath(namespace.SchemaHPP.GPath)}
 #include "XmlPGen/TTypeProxy.h"
- 
+#include ${MakeLocalPath(namespace.root.type.WriterHPP.GPath)}
+
 namespace ${NAMESPACE}
 {
 
@@ -33,20 +34,32 @@ namespace ${NAMESPACE}
    };
 
    ${Clazz}::${Clazz}()
-   : Schema( ${c_string(namespace.uri)} )
+   : Schema( ${c_string(namespace.uri)}, static_cast<int>(EToken::${namespace.uri_token.tokenName?capitalize}), static_cast<int>(EToken::${namespace.root_token.tokenName?capitalize}) )
    {
+     root = ${resolvePtrNewFromTemplate(namespace.root.type, "TypeHPP")};
    }
 
    ::XmlPGen::TypeHandler * ${Clazz}::createRootHandler() const
    {
-     root = ${resolvePtrNewFromTemplate(namespace.root.type, "TypeHPP")};
-     return XmlPGen::TTypeProxy< ${resolveTypeNameFromTemplate( namespace.root.type, "TypeHPP" )} >::createHandler( ${resolvePtrGetPtr("root")});
+      return XmlPGen::TTypeProxy< ${resolveTypeNameFromTemplate( namespace.root.type, "TypeHPP" )} >::createHandler( ${resolvePtrGetPtr("root")});
    }
-    
+
    ::XmlPGen::TokenChar const * ${Clazz}::getTokenMap() const
    { 
       return sTokenMap;
    }
+   
+   void ${Clazz}::writeDocument( ::XmlPGen::AbstractWriter & aw )
+   {
+      aw.header();
+      if ( root )
+      {
+        aw.start( "${getElementName(namespace.root)}" );
+        ::XmlPGen::write( *root, aw );
+        aw.end();
+      }
+   }
+   
 
 } // End of namespace ${namespace.name} 
  

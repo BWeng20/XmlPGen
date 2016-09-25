@@ -14,6 +14,8 @@
 
 namespace XmlPGen
 {
+    class Schema;
+
     class Parser
     {
     public:
@@ -49,6 +51,9 @@ namespace XmlPGen
     	  void setAttribute( char const * name, char const * value );
     	  void setTextContent( char const * value );
     	  void leaveNode( );
+
+        ::std::shared_ptr< ::std::istream> input;
+        ::std::string filename;
 
     private:
        void clean_up();

@@ -8,7 +8,7 @@
 #include  <memory>
 #include  "XmlPGen/Parser.h"
 #include  "libxml/parser.h"
-#include  "XmlPGen/ElementHandler.h"
+#include  "XmlPGen/TypeHandler.h"
 
 struct _xmlNode;
 
@@ -31,8 +31,6 @@ namespace XmlPGen
 
       void visitNode(::xmlNodePtr node);
 
-		::std::shared_ptr< ::std::istream> input;
-		::std::string filename;
       ::xmlDocPtr doc;
 	};
 }

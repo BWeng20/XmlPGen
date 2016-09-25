@@ -10,7 +10,8 @@ namespace XmlPGen
 {
 
    LibXML2Parser::LibXML2Parser(::std::shared_ptr<Log> log  )
-   : Parsere( log )
+   : Parser( log )
+   , doc { nullptr }
    {
    }
 
@@ -46,15 +47,18 @@ namespace XmlPGen
 			char const * fopt = filename.empty() ? nullptr : filename.c_str();
 
 			::std::streamsize const buffer_capacity = 1024;
-			char buffer[buffer_capacity];
+			char buffer[buffer_capacity+1];
 			::std::streamsize read = input->read(buffer, buffer_capacity).gcount();
          if (!input->bad())
          {
+            buffer[read] = 0;
             ::xmlParserCtxtPtr ctxt = ::xmlCreatePushParserCtxt(NULL, NULL, buffer, static_cast<int>(read), fopt);
             if (ctxt == nullptr)
             {
                return false;
             }
+            ::xmlCtxtUseOptions(ctxt, XML_PARSE_NONET );
+            ::xmlCtxtUseOptions(ctxt, XML_PARSE_NOENT );
             ::xmlCtxtUseOptions(ctxt, XML_PARSE_NOBLANKS );            
             do
             {

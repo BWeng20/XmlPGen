@@ -17,6 +17,7 @@
  */
 
 #include ${MakeLocalPath(type.SchemaHPP.GPath)}
+#include "XmlPGen/ParseString.h"
 #include "XmlPGen/TTypeProxy.h"
 #include "XmlPGen/Log.h"
 
@@ -44,24 +45,27 @@ namespace ${namespace.name}
  <#if options.generate.getters == true && options.generate.member.protection == true>
   <#if options.generate.setters == true>
     <#if attribute.type.usage == "ByPointer">
+           obj_->${getAttributeSetter(attribute)}( ${resolvePtrNewFromTemplate(member.type,"TypeHPP")} );
            return ::XmlPGen::TTypeProxy< ${TypeName} >::createHandler( &${resolvePtrDeRef( "obj_->"+getAttributeGetter(attribute)+"()")} );
     <#elseif attribute.type.usage == "ByReference">       
+           obj_->${getAttributeSetter(attribute)}( ${resolveTypeNameFromTemplate(attribute.type,"TypeHPP")}() );
            return ::XmlPGen::TTypeProxy< ${TypeName} >::createHandler( &(obj_->${getAttributeGetter(attribute)+"()"}) );
     <#else>
            return new ::XmlPGen::FunctionContentHandler( 
-                      [=]( char const * str_value )
-                      { 
-                         ${resolveTypeName(attribute.type)} value;
-                         ::XmlPGen::ParseString( str_value, value );
-                         obj_->${getAttributeSetter(attribute)}( value );
-                      } );
+                      new ::std::function<void(char const *)>(
+                        [=]( char const * str_value )
+                        { 
+                           ${resolveTypeNameFromTemplate(attribute.type, "TypeHPP")} value;
+                           ::XmlPGen::ParseString( str_value, value );
+                           obj_->${getAttributeSetter(attribute)}( value );
+                        }));
     </#if>
    <#else>
            // Adjust generator settings! 
            #error No setters for protected members available. Can't assign values.
    </#if>
  <#else>
-           return ::XmlPGen::TTypeProxy< ${resolveTypeName(attribute.type)} >::createHandler( &${resolveAttributeGet(attribute,"obj_->")} );
+           return ::XmlPGen::TTypeProxy< ${resolveTypeNameFromTemplate(attribute.type,"TypeHPP")} >::createHandler( &${resolveAttributeGet(attribute,"obj_->")} );
  </#if>  
 </#list>
        default:
@@ -72,10 +76,10 @@ namespace ${namespace.name}
 </#if>       
      }
     
-     ::XmlPGen::TypeHandler * addElement(int token) override
+     ::XmlPGen::TypeHandler * addElement(int namespace_token, int element_token) override
      {
 <#if ((type.members?size)>0) >
-       switch ( static_cast<EToken>(token) )
+       switch ( static_cast<EToken>(element_token) )
        {
 <#list type.members as member>
  <#assign TypeName = resolveTypeNameFromTemplate(member.type, "TypeHPP")
@@ -91,25 +95,34 @@ namespace ${namespace.name}
            return ::XmlPGen::TTypeProxy< ${TypeName} >::createHandler( ${resolvePtrGetPtr("obj_->"+getElementGetter(member)+"(obj_->get"+MemName+"Count()-1)")} );
         <#elseif member.type.usage == "ByReference">
            obj_->add${getElementName(member)}( ${TypeName}() );
-           return ::XmlPGen::TTypeProxy< ${TypeName} >::createHandler( &(obj_->${getElementGetter(member)}( obj_->get${MemName}Count()-1 ) );
+           return ::XmlPGen::TTypeProxy< ${TypeName} >::createHandler( &(obj_->${getElementGetter(member)}( obj_->get${MemName}Count()-1 )) );
         <#else>
            ${resolveType(member.type)} val;
            // TODO dynamic stetter needed to new added list element
         </#if>
-    <#else>
+    <#elseif member.type.isEnumeration>
+           return new ::XmlPGen::FunctionContentHandler( 
+                      new ::std::function<void(char const *)>(
+                        [=]( char const * str_value )
+                        { 
+                           obj_->${getElementSetter(member)}( ${getBaseTypeFromEnumType( resolveTypeNameFromTemplate(member.type, "TypeHPP") )}::parse( str_value ) );
+                        }) );         
+    <#else>        
         <#if member.type.usage == "ByPointer">
+           obj_->${getElementSetter(member)}( ${resolvePtrNewFromTemplate(member.type,"TypeHPP")} );
            return ::XmlPGen::TTypeProxy< ${TypeName} >::createHandler( &${resolvePtrDeRef( "obj_->"+getElementGetter(member)+"()")} );
-        <#elseif member.type.usage == "ByReference">       
+        <#elseif member.type.usage == "ByReference">
+           obj_->${getElementSetter(member)}( ${resolveTypeNameFromTemplate(member.type,"TypeHPP")}() );
            return ::XmlPGen::TTypeProxy< ${TypeName} >::createHandler( &(obj_->${getElementGetter(member)+"()"}) );
         <#else>
            return new ::XmlPGen::FunctionContentHandler( 
-                      [=]( char const * str_value )
-                      { 
-                         ${resolveTypeName(member.type)} value;
-                         ::XmlPGen::ParseString( str_value, value );
-                         obj_->${getElementSetter(member)}( value );
-                      } );
-
+                      new ::std::function<void(char const *)>(
+                        [=]( char const * str_value )
+                        { 
+                           ${resolveTypeNameFromTemplate(member.type, "TypeHPP")} value;
+                           ::XmlPGen::ParseString( str_value, value );
+                           obj_->${getElementSetter(member)}( value );
+                        }) );
         </#if>
     </#if>
    <#else>

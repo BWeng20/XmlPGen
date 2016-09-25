@@ -25,6 +25,11 @@
   </#if>
 </#function>
 
+<#-- Removed the "::type" from a enum-typename -->
+<#function getBaseTypeFromEnumType tname >
+  <#return tname?keep_before("::Type") >
+</#function>
+
 <#function resolveTypeName t >
   <#return resolveTypeNameFromTemplate( t, "")>
 </#function>

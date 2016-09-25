@@ -6,17 +6,17 @@
 <#include "HelperFunctions.fm">
 <#assign Clazz = type.GName>
 <#assign mpad = options.generate.member.padding?number>
-<#assign memberIndex = 0 >
+<#assign setMemberIndex = 0 >
 <#function insertSetFlag >
   <#if options.generate.setflags>
-    <#return "setFlags.set("+memberIndex+");">
+    <#return "setFlags.set("+setMemberIndex+");">
   <#else>
     <#return "">
   </#if>
 </#function>
 <#function insertSetFlagCheck val>
   <#if options.generate.setflags>
-    <#return "setFlags.set("+memberIndex+","+resolvePtrCheckNull(val)+");">
+    <#return "setFlags.set("+setMemberIndex+","+resolvePtrCheckNull(val)+");">
   <#else>
     <#return "">
   </#if>
@@ -121,9 +121,9 @@
   </#if>
  </#if>
  <#if options.generate.setflags>
-        inline void ${getAttributeClear(attribute)}() { setFlags.reset( ${memberIndex} ); }
-        inline bool ${getAttributeIsSet(attribute)}() const { return setFlags.test( ${memberIndex} ); }
-        <#assign memberIndex = memberIndex + 1 >
+        inline void ${getAttributeClear(attribute)}() { setFlags.reset( ${setMemberIndex} ); }
+        inline bool ${getAttributeIsSet(attribute)}() const { return setFlags.test( ${setMemberIndex} ); }
+        <#assign setMemberIndex = setMemberIndex + 1 >
  </#if>
 </#list>
 <#list type.members as member>
@@ -181,9 +181,9 @@
       </#if>
    </#if>
    <#if options.generate.setflags>
-        inline void ${getElementClear(member)}() { setFlags.reset( ${memberIndex} ); }
-        inline bool ${getElementIsSet(member)}() const { return setFlags.test( ${memberIndex} ); }
-      <#assign memberIndex = memberIndex + 1 >
+        inline void ${getElementClear(member)}() { setFlags.reset( ${setMemberIndex} ); }
+        inline bool ${getElementIsSet(member)}() const { return setFlags.test( ${setMemberIndex} ); }
+      <#assign setMemberIndex = setMemberIndex + 1 >
    </#if>       
 
 </#if>
@@ -191,21 +191,21 @@
 <#if type.mixed >
         inline ${resolveTypeName( string.type )} const & getContent() const { return mixedContent; }
    <#if options.generate.setflags>
-        inline bool isContentSet() const { return setFlags.test( ${memberIndex} ); }
+        inline bool isContentSet() const { return setFlags.test( ${setMemberIndex} ); }
    </#if> 
    <#if options.generate.setters == true>
-        inline void addContent( ${resolveTypeName( string.type )} const & c ) { mixedConent.append( c ); ${insertSetFlag() }
+        inline void addContent( ${resolveTypeName( string.type )} const & c ) { mixedContent.append( c ); ${insertSetFlag()} }
         
         inline void clearContent(int index) 
         { 
      <#if options.generate.setflags>
-           setFlags.reset( ${memberIndex} );
+           setFlags.reset( ${setMemberIndex} );
      </#if>
            mixedContent.clear();
         }
    </#if>
    <#if options.generate.setflags>
-      <#assign memberIndex = memberIndex + 1 >
+      <#assign setMemberIndex = setMemberIndex + 1 >
    </#if>
 </#if>     
 </#if>
@@ -245,7 +245,6 @@
   </#if>
  </#if>
  <#if isListMember(member)>
-        
     <#if member.type.usage == "ByPointer">
         ${resolveListPtrType(member.type)?right_pad(mpad)} ${MemVar};
     <#else>
@@ -262,9 +261,8 @@
 <#if type.mixed >
         ${resolveTypeName( string.type )?right_pad(mpad)} mixedContent;
 </#if>
-<#if options.generate.setflags>
-        
-        ::std::bitset<${memberIndex}> setFlags;
+<#if options.generate.setflags && (setMemberIndex>0) >
+        ::std::bitset<${setMemberIndex}> setFlags;
 </#if> 
 </#if>
      };    

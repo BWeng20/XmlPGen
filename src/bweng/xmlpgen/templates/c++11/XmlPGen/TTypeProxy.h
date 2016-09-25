@@ -1,4 +1,4 @@
-    /* Part of XmlPGen
+/* Part of XmlPGen
  * Copyright (c) 2013-2016 Bernd Wengenroth
  * Licensed under the MIT License.
  * See LICENSE file for details.
@@ -6,7 +6,7 @@
 #ifndef XmlPGen_TElementProxy_h_INCLUDED
 #define XmlPGen_TElementProxy_h_INCLUDED
 
-#include "ElementHandler.h"
+#include "TypeHandler.h"
 
 namespace XmlPGen
 {

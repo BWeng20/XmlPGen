@@ -18,6 +18,7 @@
  */
 #include "XmlPGen/Schema.h"
 #include "XmlPGen/TypeHandler.h"
+#include "XmlPGen/AbstractWriter.h"
 #include ${MakeLocalPath(namespace.root.type.TypeHPP.GPath)}
 
 namespace ${namespace.name}
@@ -38,13 +39,15 @@ namespace ${namespace.name}
     class ${Clazz} : public ::XmlPGen::Schema
     {
     public:
-      ::XmlPGen::TypeHandler * getRootHandler() const override;
+      ::XmlPGen::TypeHandler * createRootHandler() const override;
       ::XmlPGen::TokenChar const * getTokenMap() const override;
       
       inline ${rootPtrType} getRoot() const
       {  
          return root;
       }
+      
+      void writeDocument( ::XmlPGen::AbstractWriter & );     
       
       ${Clazz}();
 

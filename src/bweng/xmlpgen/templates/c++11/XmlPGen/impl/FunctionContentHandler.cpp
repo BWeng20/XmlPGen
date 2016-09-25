@@ -3,14 +3,14 @@
  * See LICENSE file for details.
  */
 
-#include "../ElementHandler.h"
+#include "../TypeHandler.h"
 
 namespace XmlPGen
 {
     TypeHandler::~TypeHandler()
     {}
 
-    FunctionContentHandler::FunctionContentHandler( ::std::function< char const *> * f )
+    FunctionContentHandler::FunctionContentHandler( ::std::function< void(char const *) > * f )
     : func_(f)
     {
     }
@@ -22,7 +22,7 @@ namespace XmlPGen
 
     void FunctionContentHandler::addContent(char const *value) 
     {
-      if ( func_) func_( value );
+      if ( func_ && (*func_) ) (*func_)( value );
     }
 
     TypeHandler * FunctionContentHandler::addAttribute(int )  
@@ -35,5 +35,3 @@ namespace XmlPGen
       return nullptr;
     }
 }
-
-#endif
